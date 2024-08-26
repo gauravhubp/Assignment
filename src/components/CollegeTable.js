@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import '../styles/CollegeTable.css';
 import { collegeData } from '../data/collegeData';
 
@@ -30,13 +30,27 @@ const CollegeTable = () => {
     }
   };
 
+  const sortColleges = useCallback((collegeList) => {
+    if (!sortConfig.key) return collegeList;
+    return [...collegeList].sort((a, b) => {
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? -1 : 1;
+      }
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [sortConfig]);
+
+
   useEffect(() => {
     const filteredColleges = colleges.filter((college) =>
       college.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     const sortedColleges = sortColleges(filteredColleges);
     setDisplayedColleges(sortedColleges.slice(0, page * 10));
-  }, [searchTerm, sortConfig, page, colleges]);
+  }, [searchTerm, sortConfig, page, colleges, sortColleges]);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -54,18 +68,6 @@ const CollegeTable = () => {
     setPage(1);
   };
 
-  const sortColleges = (collegeList) => {
-    if (!sortConfig.key) return collegeList;
-    return [...collegeList].sort((a, b) => {
-      if (a[sortConfig.key] < b[sortConfig.key]) {
-        return sortConfig.direction === 'ascending' ? -1 : 1;
-      }
-      if (a[sortConfig.key] > b[sortConfig.key]) {
-        return sortConfig.direction === 'ascending' ? 1 : -1;
-      }
-      return 0;
-    });
-  };
 
   return (
     <div className="college-table-container">
